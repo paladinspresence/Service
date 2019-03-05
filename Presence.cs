@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Net;
 using Newtonsoft.Json.Linq;
+using IniParser;
+using IniParser.Model;
 
 namespace Paladins_Presence
 {
@@ -20,7 +22,9 @@ namespace Paladins_Presence
         Timer exeCheckTimer = new Timer();
         Timer statusCheckTimer = new Timer();
         DiscordRPC.DiscordRpcClient client;
-        private int playerId = 9152847;
+        int playerId;
+        FileIniDataParser iniParser;
+        IniData config;
 
         public Presence()
         {
@@ -31,6 +35,19 @@ namespace Paladins_Presence
         {
             WriteLog("Starting Presence service.");
 
+            WriteLog("Initializing INI parser.");
+           
+            if (!File.Exists(AppDomain.CurrentDomain.BaseDirectory + "\\PresenceConfig.ini"))
+            {
+                WriteLog("Presence configuration file does not exist.");
+                this.Stop();
+                return;
+            }
+
+            iniParser = new FileIniDataParser();
+            config = iniParser.ReadFile(AppDomain.CurrentDomain.BaseDirectory + "\\PresenceConfig.ini");
+            playerId = int.Parse(config["Player"]["PaladinsId"]);
+            
             // Set Intervals
             exeCheckTimer.Interval = 1000; // 120000
             statusCheckTimer.Interval = 30000;
@@ -102,11 +119,6 @@ namespace Paladins_Presence
             var wc = new WebClient { Proxy = null };
             var resp = wc.DownloadString(url);
             JToken json = JValue.Parse(resp);
-
-            // WriteLog(Property);
-            // WriteLog(json.SelectToken("rich").ToString());
-            WriteLog("Updating presence");
-            WriteLog(json.SelectToken("rich").SelectToken("details").ToString());
 
             client.SetPresence(new DiscordRPC.RichPresence()
             {
