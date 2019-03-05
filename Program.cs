@@ -30,8 +30,12 @@ namespace Paladins_Presence
                 switch (args[0])
                 {
                     case "--install":
+                        InstallService();
+                        StartService();
                         break;
                     case "--uninstall":
+                        StopService();
+                        UninstallService();
                         break;
                     default:
                         throw new NotImplementedException();
@@ -72,6 +76,106 @@ namespace Paladins_Presence
                 typeof(Presence).Assembly, null);
             installer.UseNewContext = true;
             return installer;
+        }
+
+        private static void InstallService()
+        {
+            if (IsInstalled()) return;
+
+            try
+            {
+                using (AssemblyInstaller installer = GetInstaller())
+                {
+                    IDictionary state = new Hashtable();
+                    try
+                    {
+                        installer.Install(state);
+                        installer.Commit(state);
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            installer.Rollback(state);
+                        }
+                        catch { }
+                        throw;
+                    }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        private static void UninstallService()
+        {
+            if (!IsInstalled()) return;
+            try
+            {
+                using (AssemblyInstaller installer = GetInstaller())
+                {
+                    IDictionary state = new Hashtable();
+                    try
+                    {
+                        installer.Uninstall(state);
+                    }
+                    catch
+                    {
+                        throw;
+                    }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        private static void StartService()
+        {
+            if (!IsInstalled()) return;
+
+            using (ServiceController controller =
+                new ServiceController("PaladinsPresence"))
+            {
+                try
+                {
+                    if (controller.Status != ServiceControllerStatus.Running)
+                    {
+                        controller.Start();
+                        controller.WaitForStatus(ServiceControllerStatus.Running,
+                            TimeSpan.FromSeconds(10));
+                    }
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+        }
+
+        private static void StopService()
+        {
+            if (!IsInstalled()) return;
+            using (ServiceController controller =
+                new ServiceController("PaladinsPresence"))
+            {
+                try
+                {
+                    if (controller.Status != ServiceControllerStatus.Stopped)
+                    {
+                        controller.Stop();
+                        controller.WaitForStatus(ServiceControllerStatus.Stopped,
+                             TimeSpan.FromSeconds(10));
+                    }
+                }
+                catch
+                {
+                    throw;
+                }
+            }
         }
     }
 }
