@@ -29,8 +29,7 @@ namespace Paladins_Presence
 
         protected override void OnStart(string[] args)
         {
-            WriteLog();
-            WriteLog(string.Format("Build {0}", 16));
+            WriteLog("Starting Presence service.");
 
             // Set Intervals
             exeCheckTimer.Interval = 1000; // 120000
@@ -77,7 +76,6 @@ namespace Paladins_Presence
 
         private void onExeCheckTime(object source, ElapsedEventArgs e)
         {
-            // WriteLog("Checking for Paladins");
             bool running = isPaladinsRunning();
             if (running && !statusCheckTimer.Enabled)
             {
@@ -95,8 +93,6 @@ namespace Paladins_Presence
 
         private void onStatusCheckTime(object source, ElapsedEventArgs e)
         {
-            WriteLog("Getting status");
-
             this.updateStatus();
         }
 
@@ -129,7 +125,7 @@ namespace Paladins_Presence
 
         private bool isPaladinsRunning()
         {
-            return Process.GetProcessesByName("EasyAntiCheat Launcher").Length > 0 || Process.GetProcessesByName("Paladins").Length > 0;
+            return Process.GetProcessesByName("Paladins").Length > 0;
         }
 
         public void WriteLog(string Message)
