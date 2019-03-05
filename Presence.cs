@@ -57,7 +57,7 @@ namespace Paladins_Presence
 
             client.OnPresenceUpdate += (sender, e) =>
             {
-                WriteLog(string.Format("Update gotten: {0}", e.Presence));
+                //
             };
 
             client.Initialize();
