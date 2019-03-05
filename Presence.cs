@@ -70,7 +70,7 @@ namespace Paladins_Presence
 
         protected override void OnStop()
         {
-            WriteLog(string.Format("[{0}] Paladins Presence is stopping.", DateTime.Now));
+            WriteLog("Paladins Presence is stopping.");
             client.Dispose();
         }
 
