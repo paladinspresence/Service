@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Configuration.Install;
+using System.IO;
 
 namespace Paladins_Presence
 {
@@ -30,15 +31,42 @@ namespace Paladins_Presence
                 switch (args[0])
                 {
                     case "--install":
+                        WriteLog("Installing Presence service");
                         InstallService();
                         StartService();
                         break;
                     case "--uninstall":
+                        WriteLog("Uninstalling Presence service");
                         StopService();
                         UninstallService();
                         break;
                     default:
                         throw new NotImplementedException();
+                }
+            }
+        }
+
+        public static void WriteLog(string Message)
+        {
+            string path = AppDomain.CurrentDomain.BaseDirectory + "\\Logs";
+            Message = string.Format("[{0}] {1}", DateTime.Now, Message);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\Logs\\ServiceLog_PaladinsPresence_" + DateTime.Now.Date.ToShortDateString().Replace('/', '_') + ".txt";
+            if (!File.Exists(filepath))
+            {
+                using (StreamWriter sw = File.CreateText(filepath))
+                {
+                    sw.WriteLine(Message);
+                }
+            }
+            else
+            {
+                using (StreamWriter sw = File.AppendText(filepath))
+                {
+                    sw.WriteLine(Message);
                 }
             }
         }
@@ -56,6 +84,7 @@ namespace Paladins_Presence
                 {
                     return false;
                 }
+
                 return true;
             }
         }
@@ -73,7 +102,7 @@ namespace Paladins_Presence
         private static AssemblyInstaller GetInstaller()
         {
             AssemblyInstaller installer = new AssemblyInstaller(
-                typeof(Presence).Assembly, null);
+                typeof(ProjectInstaller).Assembly, null);
             installer.UseNewContext = true;
             return installer;
         }
@@ -92,8 +121,10 @@ namespace Paladins_Presence
                         installer.Install(state);
                         installer.Commit(state);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        WriteLog(ex.ToString());
+                        WriteLog("Rolling back install.");
                         try
                         {
                             installer.Rollback(state);
