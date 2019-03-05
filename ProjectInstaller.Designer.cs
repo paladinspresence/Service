@@ -42,7 +42,7 @@
             // 
             this.serviceInstaller1.Description = "Paladins Discord Rich Presence Service by Paladins.Dev";
             this.serviceInstaller1.DisplayName = "Paladins Presence";
-            this.serviceInstaller1.ServiceName = "Presence";
+            this.serviceInstaller1.ServiceName = "PaladinsPresence";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             this.serviceInstaller1.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.serviceInstaller1_AfterInstall);
             // 
