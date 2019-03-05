@@ -29,7 +29,7 @@ namespace Paladins_Presence
 
         protected override void OnStart(string[] args)
         {
-            WriteLog(string.Format("[{0}] Paladins Presence is starting.", DateTime.Now));
+            WriteLog();
             WriteLog(string.Format("Build {0}", 16));
 
             // Set Intervals
@@ -135,6 +135,8 @@ namespace Paladins_Presence
         public void WriteLog(string Message)
         {
             string path = AppDomain.CurrentDomain.BaseDirectory + "\\Logs";
+
+            Message = string.Format("[{0}] {1}", DateTime.Now, Message);
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
